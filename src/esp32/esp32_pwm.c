@@ -31,14 +31,11 @@ struct ledc_info {
   int timer;
 };
 
-static struct ledc_info s_ledc_ch[LEDC_NUM_CHANS] = {{.pin = -1, .timer = -1},
-                                                     {.pin = -1, .timer = -1},
-                                                     {.pin = -1, .timer = -1},
-                                                     {.pin = -1, .timer = -1},
-                                                     {.pin = -1, .timer = -1},
-                                                     {.pin = -1, .timer = -1},
-                                                     {.pin = -1, .timer = -1},
-                                                     {.pin = -1, .timer = -1}};
+static struct ledc_info s_ledc_ch[LEDC_NUM_CHANS] = {
+    {.pin = -1, .timer = -1}, {.pin = -1, .timer = -1},
+    {.pin = -1, .timer = -1}, {.pin = -1, .timer = -1},
+    {.pin = -1, .timer = -1}, {.pin = -1, .timer = -1},
+    {.pin = -1, .timer = -1}, {.pin = -1, .timer = -1}};
 static int s_timers_used = 0;
 
 static int esp32_pwm_find_ch(int pin) {
@@ -158,6 +155,11 @@ static bool esp32_pwm_remove(int ch) {
   ledc_stop(LEDC_MODE, ch, 0);
 
   if (esp32_pwm_find_timer(ch) == -1) esp32_pwm_free_timer(ch);
+
+  int pin = s_ledc_ch[ch].pin;
+
+  gpio_set_direction(pin, GPIO_MODE_OUTPUT);
+  gpio_set_level(pin, 0);
 
   s_ledc_ch[ch].pin = -1;
   s_ledc_ch[ch].timer = -1;
